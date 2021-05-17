@@ -1,0 +1,139 @@
+﻿@model TCU.English.Models.SpeakingEmbedCombined
+
+@{
+    string videoName = "";
+    string source = "";
+    if (Model != null && Model.SpeakingEmbed != null && !string.IsNullOrEmpty(Model.SpeakingEmbed.YoutubeVideo))
+    {
+        videoName = System.IO.Path.GetFileNameWithoutExtension(Model.SpeakingEmbed.YoutubeVideo);
+        source = Model.SpeakingEmbed.YoutubeVideo;
+    }
+}
+
+<div class="row">
+    <small class="form-text text-danger mr-3">@Html.ValidationSummary()</small>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <h2 class="h6 text-uppercase my-auto">Speking Embed</h2>
+                </div>
+            </div>
+            <div class="card-body p-3">
+                @Html.HiddenFor(x => x.TestCategory.Id)
+                @Html.HiddenFor(x => x.TestCategory.CreatorId)
+                @Html.HiddenFor(x => x.TestCategory.CreatedTime)
+                @Html.HiddenFor(x => x.TestCategory.UpdatedTime)
+                @Html.HiddenFor(x => x.TestCategory.TypeCode)
+                @Html.HiddenFor(x => x.TestCategory.Active)
+                <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.TestCategory.TypeCode)</small>
+                @Html.HiddenFor(x => x.TestCategory.PartId)
+                <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.TestCategory.PartId)</small>
+                <div class="form-group">
+                    @Html.LabelFor(x => x.TestCategory.Name)
+                    @Html.TextBoxFor(x => x.TestCategory.Name, new { @placeholder = "Paragraph name", @class = "form-control" })
+                    <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.TestCategory.Name)</small>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(x => x.TestCategory.Description)
+                    @Html.TextBoxFor(x => x.TestCategory.Description, new { @placeholder = "Paragraph description", @class = "form-control" })
+                    <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.TestCategory.Description)</small>
+                </div>
+
+                @*<div class="line"></div>*@
+
+                @* QUESTION *@
+                @Html.HiddenFor(x => x.SpeakingEmbed.Id)
+                @Html.HiddenFor(x => x.SpeakingEmbed.CreatorId)
+                @Html.HiddenFor(x => x.SpeakingEmbed.CreatedTime)
+                @Html.HiddenFor(x => x.SpeakingEmbed.UpdatedTime)
+                @Html.HiddenFor(x => x.SpeakingEmbed.TestCategoryId)
+                @Html.HiddenFor(x => x.SpeakingEmbed.Active)
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.Label("Your selected video")
+                            <input type="text" class="form-control" id="selectedVideoName" placeholder="You not select any video" disabled
+                                   value="@videoName" />
+                            @Html.HiddenFor(x => x.SpeakingEmbed.YoutubeVideo, new { id = "YoutubeEmbedAddress" })
+                            <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.SpeakingEmbed.YoutubeVideo)</small>
+                            <div class="pt-3">
+                                <video controls preload="metadata" style="width:100%" id="video-embed-player">
+                                    <source src="@source">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @await Component.InvokeAsync(nameof(TCU.English.Components.VideoLibraryTable))
+                    </div>
+                </div>
+                @* END OF QUESTIONS *@
+
+                @*<div class="line"></div>*@
+
+                <div class="form-group">
+                    @Html.Label("Transcripts")
+                    <small class="form-text text-danger mr-3">@Html.ValidationMessageFor(x => x.TestCategory.WYSIWYGContent)</small>
+                    @Html.TextAreaFor(x => x.TestCategory.WYSIWYGContent, new { id = "WYSIWYGContent" })
+                </div>
+            </div>
+        </div>
+        <div class="py-5 text-center">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    CKEDITOR.replace('WYSIWYGContent');
+
+    var selectedIndex = 0;
+
+    function getVideoFromNearList(id, isInit = false) {
+
+        if (id == selectedIndex) {
+            @Html.Raw(Notification.Error("This video was selected before"))
+            return;
+        }
+        let downloadPath = $(`#vl-btn-${id}`).val();
+        let videoName = $(`#vl-name-${id}`).html();
+
+        if (downloadPath == undefined || videoName == undefined) {
+            @Html.Raw(Notification.Error("Video not found"))
+            return;
+        }
+
+        $('#selectedVideoName').val(videoName.trim());
+        $('#YoutubeEmbedAddress').val(downloadPath.trim());
+        $('#video-embed-player source').attr('src', downloadPath.trim());
+        $('#video-embed-player')[0].load();
+
+        selectedIndex = id;
+
+        if (!isInit)
+            @Html.Raw(Notification.Success("Change video success"))
+        else
+            @Html.Raw(Notification.Success("Set first video for view success"))
+
+    }
+
+    // Chêm sự kiện vào các nút
+    $('button[id^="vl-btn-"]').filter(
+        function () {
+            return this.id.match(/\d+$/);
+        }).click(function () {
+            let indexString = $(this).attr('id').replace('vl-btn-', '');
+            try {
+                let index = parseInt(indexString);
+                getVideoFromNearList(index);
+            } catch (e) {
+                @Html.Raw(Notification.Error("Your select is invalid"))
+            }
+        });
+    @if (string.IsNullOrEmpty(source))
+    {
+        @Html.Raw("getVideoFromNearList(1, true);");
+    }
+</script>

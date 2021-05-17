@@ -1,0 +1,50 @@
+﻿@model Discussion
+@{
+    ViewData["Title"] = "Message Box";
+    User yourSelft = ViewBag.YourSelft;
+    User yourFriend = ViewBag.Friend;
+}
+@Html.Hidden("discussId", Model.Id)
+@Html.Hidden("senderId", yourSelft.Id)
+<div class="card my-5">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-4 d-flex align-items-center flex-column flex-lg-row text-center text-md-left">
+                <img src="@Html.Raw(yourFriend.Avatar??"")" style="max-width: 3rem" class="rounded-circle mr-3 my-2 my-lg-0 top-avatar" onerror="this.onerror=null; this.src='/img/no_avatar.png'">
+                <h6 class="text-uppercase">@Html.Raw($"{yourFriend.FirstName} {yourFriend.LastName}")</h6>
+            </div>
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" placeholder="Your message..." class="form-control" id="messageInput">
+                    <div class="input-group-append">
+                        <button type="button" id="sendButton" class="btn btn-primary">Send <i class="fas fa-paper-plane ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="messages">
+            <div class="message">
+                <div id="messagesList">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #messages {
+        height: 450px;
+        overflow-y: auto;
+    }
+</style>
+
+<script src="~/js/chat.js"></script>
+<script>
+    var dumsArr = @Html.Raw(ViewBag.DumJsonArray);
+    dumsArr.forEach(function (dum) {
+        generateMessage(@Model.Id,dum);
+    });
+</script>

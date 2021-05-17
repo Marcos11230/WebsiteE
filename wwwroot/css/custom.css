@@ -1,0 +1,69 @@
+.none-a > a {
+    color: unset;
+}
+
+    .none-a > a:hover, .none-a > a:active {
+        text-decoration: none;
+    }
+
+.float-br-hidden, .float-br, .float-bl-hidden, .float-bl {
+    position: fixed;
+    bottom: 20px;
+    z-index: 1050;
+    border: none;
+    outline: none;
+    padding: 15px;
+}
+
+.float-br-hidden, .float-br {
+    right: 30px;
+}
+
+.float-bl-hidden, .float-bl {
+    left: 30px;
+}
+
+.float-bl-hidden, .float-br-hidden {
+    display: none;
+}
+
+.paper-width {
+    max-width: 996px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .paper-width, .paper-width .font-weight-bold, .paper-width .h6 {
+        font-size: 21px;
+    }
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+}
+
+    .video-container iframe, .video-container object, .video-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+.top-avatar {
+    object-fit: fill; /* Do not scale the image */
+    object-position: center; /* Center the image within the element */
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.w-0 {
+    width: 0% !important;
+}
+
+.cursor:hover {
+    cursor: pointer;
+}

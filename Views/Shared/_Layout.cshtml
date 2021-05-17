@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <base href="/" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"] | TCU.English</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <!-- Bootstrap CSS-->
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome CSS-->
+    <link rel="stylesheet" href="~/vendor/fontawesome-5.3.1/css/all.css">
+    <!-- Google fonts - Popppins for copy-->
+    <link rel="stylesheet" href="~/css/gfont-popins-css.css">
+    <!-- orion icons-->
+    <link rel="stylesheet" href="css/orionicons.css">
+    <!-- Loading -->
+    <link rel="stylesheet" href="css/loading.css">
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
+    <!-- Custom stylesheet - for your changes-->
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <!-- Tweaks for older IEs-->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+    <!-- JavaScript files-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/popper.js/umd/popper.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="vendor/jquery.cookie/jquery.cookie.js"></script>
+    <script src="~/js/js.cookie.min.js"></script>
+    <script src="js/front.js"></script>
+    <script src="~/js/moment.min.js"></script>
+
+    <script src="~/lib/jquery.unobtrusive-ajax.js"></script>
+
+    <script src="~/js/gijgo.min.js" type="text/javascript"></script>
+
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script src="~/vendor/ckeditor/ckeditor.js"></script>
+    <!-- CORE IMPORT -->
+    <link href="./core/components/notify/noty.min.css" rel="stylesheet">
+    <script src="./core/components/notify/noty.min.js"></script>
+
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    @RenderSection("headers", false)
+</head>
+<body>
+    <div class="loading" id="loading">Loading&#8230;</div>
+    <!-- navbar-->
+    @await Component.InvokeAsync(nameof(TCU.English.Components.Header))
+    <div class="d-flex align-items-stretch">
+        <div id="sidebar" class="sidebar py-3">
+            @await Component.InvokeAsync(nameof(TCU.English.Components.Sidebar))
+        </div>
+        <div class="page-holder w-100 d-flex flex-wrap">
+            <div class="container-fluid px-xl-5">
+                @RenderBody()
+            </div>
+            <footer class="footer bg-white shadow align-self-end py-3 px-xl-5 w-100">
+                @await Component.InvokeAsync(nameof(TCU.English.Components.Footer))
+            </footer>
+        </div>
+    </div>
+
+    <div>
+        @* Dành cho giáo viên hướng dẫn *@
+        <div class="float-br">
+            <div class="d-inline-block mr-2">
+                @await Component.InvokeAsync(nameof(TCU.English.Components.InstructorTestUnMarksCount), new { instructorId = User.Id() })
+            </div>
+            @* BACK TOP TOP *@
+            <div id="float-br" style="display: none;">
+                <button onclick="topFunction()" class="btn btn-gray-500 rounded pr-3 pl-3" data-toggle="tooltip" data-placement="top" title="Back to top"><i class="fa fa-arrow-up"></i></button>
+            </div>
+            @* END BACK TOP TOP *@
+        </div>
+        @* End dành cho GVHD *@
+    </div>
+
+    @await Component.InvokeAsync(nameof(TCU.English.Components.QuickTest))
+
+    <!-- Javascript for make menu item active -->
+    <script>
+        $('a.sidebar-link').each(function (i, obj) {
+            var url = $(location).attr('href').split('#')[0];
+            var a = url.indexOf("?");
+            if (a > 0) {
+                var b = url.substring(a);
+                var c = url.replace(b, "");
+                url = c;
+            }
+            if (obj.attributes['href'].value == url.replace(window.location.origin, '')) {
+                $(obj).addClass('active');
+            }
+        });
+
+        //Get the button
+        var floatBottomRight = document.getElementById("float-br");
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function () { scrollFunction() };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 20) {
+                floatBottomRight.style.display = "inline";
+            }
+            else {
+                floatBottomRight.style.display = "none";
+            }
+        }
+        function topFunction() {
+            $("html, body").animate({ scrollTop: 0 }, 300);
+        }
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    </script>
+
+    <script src="~/js/custom.js"></script>
+    <script src="~/js/quick-start-test.js"></script>
+
+    <partial name="_ValidationScriptsPartial" />
+    @RenderSection("Scripts", required: false)
+    <script>
+        $("#loading").hide();
+    </script>
+
+    @if (TempData["ShowQuickTest"] != null && ((bool)TempData["ShowQuickTest"]) == true)
+    {
+        TempData["ShowQuickTest"] = false;
+        <script>
+            updateCookie("quick-test", 0);
+            $("#quick-test").modal("show");
+        </script>
+    }
+</body>
+</html>

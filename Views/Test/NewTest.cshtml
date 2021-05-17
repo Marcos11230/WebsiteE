@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "NewTest";
+    string controller = NameUtils.ControllerName<TestPaperController>();
+    string listening = nameof(TestPaperController.ListeningNewTest);
+    string reading = nameof(TestPaperController.ReadingNewTest);
+    string speaking = nameof(TestPaperController.SpeakingNewTest);
+    string writing = nameof(TestPaperController.WritingNewTest);
+    string general = nameof(TestPaperController.GeneralNewTest);
+}
+
+<div class="container-fluid px-xl-5">
+    <section class="mt-5 p-3 card">
+        <div class="mb-3 form-control-label font-weight-bold text-lg text-uppercase text-center text-danger">Select your Instructor</div>
+        <div class="form-group">
+            <div class="select">
+                <select class="form-control rounded" id="instructor-select">
+                    <option value="null" selected>Don't want to choose the instructor for this test</option>
+                    @foreach (TCU.English.Models.User item in ViewBag.Instructors)
+                    {
+                        <option value="@item.Id">@Html.Raw($"{item.FirstName} {item.LastName}")</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </section>
+    <section class="py-5">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-xl-0">
+                <div onclick="navigationHref('@Url.Action(listening, controller)',@ViewBag.ListeningQuestionCount)"
+                     class="bg-white shadow roundy p-4 h-100 d-flex align-items-center justify-content-between bg-hover-gradient-violet cursor">
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="dot mr-3 bg-violet"></div>
+                        <div class="text">
+                            <h6 class="mb-0">Listening</h6><span class="text-gray">@ViewBag.ListeningQuestionCount Questions</span>
+                        </div>
+                    </div>
+                    <div class="icon text-white bg-violet"><i class="fas fa-headphones-alt"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4 mb-xl-0">
+                <div onclick="navigationHref('@Url.Action(reading, controller)',@ViewBag.ReadingQuestionCount)"
+                     class="bg-white shadow roundy p-4 h-100 d-flex align-items-center justify-content-between bg-hover-gradient-success cursor">
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="dot mr-3 bg-green"></div>
+                        <div class="text">
+                            <h6 class="mb-0">Reading</h6><span class="text-gray">@ViewBag.ReadingQuestionCount Questions</span>
+                        </div>
+                    </div>
+                    <div class="icon text-white bg-green"><i class="fas fa-book-reader"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-6 mb-4 mb-xl-0">
+                <div onclick="navigationHref('@Url.Action(speaking, controller)',@ViewBag.SpeakingQuestionCount,true)"
+                     class="bg-white shadow roundy p-4 h-100 d-flex align-items-center justify-content-between bg-hover-gradient-blue cursor">
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="dot mr-3 bg-blue"></div>
+                        <div class="text">
+                            <h6 class="mb-0">Speaking</h6><span class="text-gray">@ViewBag.SpeakingQuestionCount Questions</span>
+                        </div>
+                    </div>
+                    <div class="icon text-white bg-blue"><i class="fas fa-headset"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4 mb-xl-0">
+                <div onclick="navigationHref('@Url.Action(writing, controller)',@ViewBag.WritingQuestionCount,true)"
+                     class="bg-white shadow roundy p-4 h-100 d-flex align-items-center justify-content-between bg-hover-gradient-red cursor">
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="dot mr-3 bg-red"></div>
+                        <div class="text">
+                            <h6 class="mb-0">Writing</h6><span class="text-gray">@ViewBag.WritingQuestionCount Questions</span>
+                        </div>
+                    </div>
+                    <div class="icon text-white bg-red"><i class="fas fa-feather-alt"></i></div>
+                </div>
+            </div>
+        </div>
+        @* Khu vực nút làm bài thi chung *@
+        <div class="row mt-5">
+            <div class="col-12 mb-4 mb-xl-0">
+                <div onclick="navigationHref('@Url.Action(general, controller)',-140398,true)"
+                     class="bg-warning shadow roundy p-4 h-100 d-flex align-items-center justify-content-between bg-hover-gradient-warning cursor">
+                    <div class="flex-grow-1 d-flex align-items-center text-center">
+                        <div class="w-100 text-white">
+                            <h6 class="mb-0">General</h6><span class="text-white">Create tests common to all test types</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* End khu vực nút làm bài thi chung *@
+    </section>
+    <div class="alert alert-primary" role="alert">
+        <div class="text-center">
+            Click on the section where you want to create the test to take the test.
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+
+        $('#instructor-select').change(function () {
+            let slectedInstructorId = $('#instructor-select').children("option:selected").val();
+            if (slectedInstructorId != 'null') {
+                @Html.Raw(Notification.Success("Having selected your instructor, you can select the exam section you want to take."));
+            }
+        });
+        function navigationHref(address, count, isRequireInstructor = false) {
+            if (count > 0 || count == -140398) {
+                let slectedInstructorId = $('#instructor-select').children("option:selected").val();
+                if (isRequireInstructor && slectedInstructorId == 'null') {
+                    @Html.Raw(Notification.Error("You need to select your instructor to be able to start this test."))
+                    return;
+                }
+                if (slectedInstructorId != 'null')
+                    address = `${address}/${slectedInstructorId}`;
+
+                // Hiển thị loading
+                $("#loading").show();
+
+                // Điều hướng trang
+                window.location.href = address;
+            } else {
+                @Html.Raw(Notification.Warning("Sorry, currently there is not enough data in this section."))
+            }
+        }
+    </script>
+}

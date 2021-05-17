@@ -1,0 +1,132 @@
+﻿@model IEnumerable<UserNote>
+@{
+    ViewData["Title"] = "Notes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    Pagination gp = ViewBag.NotePagination;
+}
+
+<div class="py-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="align-items-center row">
+                        <h2 class="h6 text-uppercase">Your notes</h2>
+                        <button type="button" data-toggle="modal" data-target="#@nameof(UserNote)_Create" class="btn btn-primary d-block ml-auto">Add new</button>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    @if (Model != null && Model.Count() > 0)
+                    {
+                        for (int i = 0; i < Model.Count(); i++)
+                        {
+                            <div id="note-content-@Model.ElementAt(i).Id" class="card mb-2 bg-hover-gradient-blue no-anchor-style cursor" onclick="loadNote(@Model.ElementAt(i).Id)">
+                                <div class="card-body p-3">
+                                    <div class="row align-items-center flex-row">
+                                        <div class="col-9">
+                                            <p class="mb-0 d-flex align-items-center font-weight-bold"><span id="note-@Model.ElementAt(i).Id">@Html.Raw((Model.ElementAt(i).Note ?? $"Note #{Model.ElementAt(i).Id}") + $" {Model.ElementAt(i).CreatedTime?.ToLocalTime().ToString("HH:mm dd/MM/yyyy")}")</span></p>
+                                        </div>
+                                        <div class="col-3">
+                                            <button type="button" class="btn btn-warning btn-sm px-2" onclick="editNote(@Model.ElementAt(i).Id); event.preventDefault();"><i class="fa fa-pencil-alt"></i></button>
+                                            <button type="button" class="btn btn-danger btn-sm px-2 ml-1" onclick="deleteNote(@Model.ElementAt(i).Id); event.preventDefault();"><i class="fa fa-trash-alt"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @await Component.InvokeAsync(nameof(Pagination), gp)
+                    }
+                    else
+                    {
+                        <partial name="__EmptyAnimation" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="text-uppercase" id="note-header">--- Please select your note ---</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" id="note-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-create-note"></div>
+<div id="modal-update-note"></div>
+
+@section Scripts {
+    <script>
+        function loadNote(id) {
+            $("#loading").show();
+            $("#note-body").load('@Url.Action(nameof(NotesController.LoadNote), NameUtils.ControllerName<NotesController>())/'+id,
+                function (data) {
+                    $("#note-body").html(data);
+                    $(`#note-header`).html($(`#note-${id}`).html());
+                    $("#loading").hide();
+                });
+        }
+
+        function editNote(id) {
+            $("#loading").show();
+            $("#modal-update-note").load('@Url.Action(nameof(NotesController.Update), NameUtils.ControllerName<NotesController>())/'+id);
+        }
+
+        window.onload = function () {
+            $("#modal-create-note").load("@Url.Action(nameof(NotesController.Create), NameUtils.ControllerName<NotesController>())");
+        };
+
+        function deleteNote(id) {
+        swal({
+            title: "Are you sure?",
+            text: `Once deleted, this action cannot be undone.`,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $("#loading").show();
+                    fetch(`@Url.Action(nameof(NotesController.Delete), NameUtils.ControllerName<NotesController>())/${id}`, {
+                        method: 'DELETE'
+                    }).then(function (response) {
+                        response.json().then(function (data) {
+                            $("#loading").hide();
+                            if (data.success) {
+                                $(`#note-content-${id}`).hide();
+                                swal(`OK! Note has been deleted.`, {
+                                    icon: "success",
+                                });
+                                //$("#loading").show();
+                                //setTimeout(function () { location.reload(); }, 100);
+                            } else {
+                                swal(`${data.responseText}`, {
+                                    icon: "error",
+                                });
+                            }
+                        }).catch(function (error) {
+                            $("#loading").hide();
+                            swal(`Sorry! Listening test has not been deleted.`, {
+                                icon: "error",
+                            });
+                        });
+                    }).catch(function (error) {
+                        $("#loading").hide();
+                        swal(`Sorry! Listening test has not been deleted.`, {
+                            icon: "error",
+                        });
+                    })
+                }
+            });
+        }
+    </script>
+}

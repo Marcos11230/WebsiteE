@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Create Reading Part 4 Question";
+    string controller = TCU.English.Utils.NameUtils.ControllerName<TCU.English.Controllers.ReadingManagerController>();
+    string actionName = nameof(TCU.English.Controllers.ReadingManagerController.Part4Create);
+}
+@* ============================ *@
+
+@* ============================ *@
+<div class="py-5">
+    @using (Html.BeginForm(actionName, controller, FormMethod.Post))
+    {
+        <partial name="~/Views/ReadingManager/Part4/_Part4FormContent.cshtml" />
+    }
+</div>

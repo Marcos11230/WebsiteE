@@ -1,0 +1,51 @@
+﻿@using TCU.English.Controllers
+@using TCU.English.Models
+@using TCU.English.Utils
+@model TCU.English.Models.PieceOfTest
+@{
+    ViewData["Title"] = ViewBag.Title ?? "TEST RESULT";
+    Layout = "~/Views/Shared/_TestPaperLayout.cshtml";
+    ViewData["HideTimer"] = true;
+
+    bool isWriting = ViewBag.IsWriting ?? false;
+    bool isSpeaking = ViewBag.IsSpeaking ?? false;
+    bool isGeneral = ViewBag.IsGeneral ?? false;
+    string msg = ViewBag.Msg ?? "Congratulations, you finished the test with a score of";
+    string customScores = ViewBag.CustomScore ?? "";
+}
+
+<section>
+    <div class="text-center">
+        <img src="~/img/success.gif" alt="Success" class="w-50" />
+        <p>@Html.Raw(msg)</p>
+        <p style="font-size: 50px;" class="font-weight-bold p-4 text-red">
+            @if (string.IsNullOrEmpty(customScores))
+            {
+                if (!isSpeaking && !isGeneral)
+                {
+                    @Html.Raw($"{((float)ViewBag.Scores).ToScores()}/{ViewBag.MaxScores}")
+                }
+            }
+            else
+            {
+                @Html.Raw(customScores)
+            }
+            @if (isWriting)
+            {
+                <div class="text-danger font-italic mb-3">Part 2 will be reviewed by the teacher you choose to see and evaluate later.</div>
+            }
+        </p>
+        <button type="button" class="btn btn-lg btn-info" onclick="review(@Model.Id)">Detail</button>
+    </div>
+</section>
+@section FinishButton {
+    <button type="button" class="btn btn-lg btn-success" onclick="window.location.href='/'">BACK TO HOME</button>
+}
+
+@section Scripts {
+    <script>
+        function review(pieceOfTestId) {
+            window.location.href = `@Url.Action(nameof(TCU.English.Controllers.TestPaperController.ReviewHandler), TCU.English.Utils.NameUtils.ControllerName<TCU.English.Controllers.TestPaperController>())/${pieceOfTestId}`;
+        }
+    </script>
+}

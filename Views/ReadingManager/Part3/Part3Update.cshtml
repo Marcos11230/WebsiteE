@@ -1,0 +1,18 @@
+﻿@using TCU.English.Utils
+@model TCU.English.Models.ReadingCombined
+@{
+    ViewData["Title"] = $"Update {Model.TestCategory.Name ?? "Part 3 Question"}";
+    string controller = TCU.English.Utils.NameUtils.ControllerName<TCU.English.Controllers.ReadingManagerController>();
+    string actionName = nameof(TCU.English.Controllers.ReadingManagerController.Part3Update);
+
+    IEnumerable<TCU.English.Models.TestCategory> testCategories = ViewBag.TestCategories;
+}
+
+@* ============================ *@
+<div class="py-5">
+    @using (Html.BeginForm(actionName, controller, FormMethod.Post))
+    {
+        <partial name="~/Views/ReadingManager/Part3/_Part3FormContent.cshtml" />
+    }
+
+</div>

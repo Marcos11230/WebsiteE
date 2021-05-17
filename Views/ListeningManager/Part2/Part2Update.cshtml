@@ -1,0 +1,18 @@
+﻿@model ListeningBaseCombined
+@{
+    ViewData["Title"] = $"Update '{Model.TestCategory.Name ?? "Listening Part 2 Question"}'";
+    string controller = NameUtils.ControllerName<ListeningManagerController>();
+    string actionName = nameof(ListeningManagerController.Part2Update);
+
+    IEnumerable<TestCategory> testCategories = ViewBag.TestCategories;
+}
+@* ============================ *@
+
+@* ============================ *@
+<div class="py-5">
+    @using (Html.BeginForm(actionName, controller, FormMethod.Post, new { @enctype = "multipart/form-data" }))
+    {
+        <partial name="~/Views/ListeningManager/Part2/_Part2FormContent.cshtml" />
+    }
+
+</div>
